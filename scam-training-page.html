@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Scam Awareness Training</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
+    background: #f2f2f7;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+  }
+
+  /* ── Phone shell ── */
+  .phone {
+    width: 100%;
+    max-width: 430px;
+    min-height: 100vh;
+    background: #f2f2f7;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ── Status bar ── */
+  .status-bar {
+    background: #000;
+    color: #fff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 18px 6px;
+    font-size: 13px;
+    font-weight: 600;
+    flex-shrink: 0;
+    z-index: 10;
+  }
+  .status-bar .time { font-size: 15px; font-weight: 700; }
+  .status-icons { display: flex; gap: 5px; align-items: center; }
+  .status-icons svg { width: 16px; height: 16px; fill: #fff; }
+
+  /* ── Browser bar ── */
+  .browser-bar {
+    background: #1c1c1e;
+    padding: 8px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+    z-index: 10;
+  }
+  .browser-bar .home-btn {
+    color: #fff;
+    font-size: 18px;
+    line-height: 1;
+  }
+  .url-pill {
+    flex: 1;
+    background: #2c2c2e;
+    border-radius: 10px;
+    padding: 7px 12px;
+    color: #ebebf5cc;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+  .url-pill .lock-icon { font-size: 11px; color: #8e8e93; flex-shrink: 0; }
+  .url-pill .tab-count {
+    background: #3a3a3c;
+    color: #fff;
+    border-radius: 5px;
+    padding: 2px 7px;
+    font-size: 12px;
+    font-weight: 700;
+    margin-left: auto;
+    flex-shrink: 0;
+  }
+  .browser-bar .more-btn { color: #fff; font-size: 20px; font-weight: 700; }
+
+  /* ── Page content area ── */
+  .page-content {
+    flex: 1;
+    background: #f2f2f7;
+    position: relative;
+    overflow-y: auto;
+    cursor: pointer;
+    min-height: 0;
+  }
+
+  /* ── SCREEN 1: Loader ── */
+  #screen-loader {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: calc(100vh - 100px);
+    gap: 20px;
+    background: #f2f2f7;
+  }
+  .spinner {
+    width: 52px; height: 52px;
+    border: 4px solid #e0e0e0;
+    border-top-color: #3478f6;
+    border-radius: 50%;
+    animation: spin 0.85s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loader-text { color: #6e6e73; font-size: 14px; font-weight: 500; }
+
+  /* ── SCREEN 2: Payment success tick ── */
+  #screen-tick {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: calc(100vh - 100px);
+    gap: 18px;
+    background: #f2f2f7;
+  }
+  .tick-circle {
+    width: 80px; height: 80px;
+    border-radius: 50%;
+    background: #34c759;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: popIn 0.45s cubic-bezier(0.34,1.56,0.64,1) both;
+  }
+  @keyframes popIn {
+    0%  { transform: scale(0); opacity: 0; }
+    100%{ transform: scale(1); opacity: 1; }
+  }
+  .tick-circle svg {
+    width: 44px; height: 44px;
+    stroke: #fff;
+    stroke-width: 3.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    fill: none;
+    stroke-dasharray: 60;
+    stroke-dashoffset: 60;
+    animation: drawCheck 0.4s 0.35s ease forwards;
+  }
+  @keyframes drawCheck { to { stroke-dashoffset: 0; } }
+  .tick-label { font-size: 17px; font-weight: 600; color: #1c1c1e; }
+  .tick-sub { font-size: 13px; color: #8e8e93; }
+
+  /* ── SCREEN 3: Invoice ── */
+  #screen-invoice {
+    display: none;
+    flex-direction: column;
+    padding-bottom: 30px;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .invoice-header {
+    background: #3478f6;
+    padding: 22px 20px 28px;
+    color: #fff;
+  }
+  .invoice-header-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 18px;
+  }
+  .invoice-doc-icon {
+    width: 42px; height: 42px;
+    background: rgba(255,255,255,0.18);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    margin-right: 12px;
+    flex-shrink: 0;
+  }
+  .invoice-title-block { display: flex; align-items: flex-start; gap: 0; }
+  .invoice-title-text h2 { font-size: 20px; font-weight: 700; line-height: 1.2; }
+  .invoice-title-text p { font-size: 11px; letter-spacing: 1.2px; font-weight: 600; opacity: 0.85; margin-top: 2px; }
+  .completed-badge {
+    background: #1c1c1e;
+    color: #fff;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+  .completed-badge .dot {
+    width: 16px; height: 16px;
+    background: #34c759;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px;
+  }
+  .invoice-divider {
+    border: none;
+    border-top: 1px solid rgba(255,255,255,0.25);
+    margin: 0 0 16px;
+  }
+  .invoice-no-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    letter-spacing: 0.5px;
+  }
+  .invoice-no-row .label { opacity: 0.8; font-weight: 500; }
+  .invoice-no-row .value { font-weight: 700; font-size: 14px; }
+
+  /* Invoice body */
+  .invoice-body {
+    background: #fff;
+    border-radius: 0 0 18px 18px;
+    padding: 32px 24px 24px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    margin: 0 0 16px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+  }
+  .xhamster-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+  .hamster-icon {
+    width: 56px; height: 56px;
+  }
+  .xhamster-wordmark {
+    font-size: 28px;
+    font-weight: 900;
+    letter-spacing: -0.5px;
+    color: #222;
+  }
+  .xhamster-wordmark span { color: #e53935; }
+  .invoice-amount {
+    font-size: 48px;
+    font-weight: 800;
+    color: #1c1c1e;
+    letter-spacing: -1px;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .invoice-method {
+    font-size: 14px;
+    color: #8e8e93;
+    margin-bottom: 20px;
+  }
+
+  .txn-section {
+    width: 100%;
+  }
+  .txn-label {
+    font-size: 11px;
+    letter-spacing: 1.1px;
+    font-weight: 700;
+    color: #8e8e93;
+    margin-bottom: 12px;
+  }
+  .txn-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 14px 0;
+    border-top: 1px solid #f2f2f7;
+    gap: 10px;
+  }
+  .txn-row .key { font-size: 15px; color: #6e6e73; flex-shrink: 0; }
+  .txn-row .val {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1c1c1e;
+    text-align: right;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .copy-btn {
+    width: 30px; height: 30px;
+    background: #f2f2f7;
+    border-radius: 7px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  /* ── POPUP overlay ── */
+  #popup-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    z-index: 1000;
+    justify-content: center;
+    align-items: flex-end;
+    padding-bottom: env(safe-area-inset-bottom, 16px);
+  }
+  #popup-overlay.active { display: flex; }
+
+  .popup-card {
+    background: #fff;
+    border-radius: 22px 22px 16px 16px;
+    width: calc(100% - 32px);
+    max-width: 398px;
+    padding: 28px 24px 24px;
+    position: relative;
+    animation: slideUp 0.35s cubic-bezier(0.34,1.3,0.64,1) both;
+    margin-bottom: 10px;
+  }
+  @keyframes slideUp {
+    from { transform: translateY(60px); opacity: 0; }
+    to   { transform: translateY(0);    opacity: 1; }
+  }
+
+  .popup-close {
+    position: absolute;
+    top: 16px; right: 18px;
+    font-size: 20px;
+    color: #8e8e93;
+    cursor: pointer;
+    line-height: 1;
+    font-weight: 400;
+  }
+
+  .popup-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: #1c1c1e;
+    margin-bottom: 20px;
+  }
+
+  .popup-phone-icon {
+    width: 64px; height: 64px;
+    background: #eef2ff;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 18px;
+  }
+  .popup-phone-icon svg {
+    width: 30px; height: 30px;
+    fill: #3478f6;
+  }
+
+  .popup-message {
+    font-size: 14.5px;
+    line-height: 1.55;
+    color: #6e6e73;
+    text-align: center;
+    margin-bottom: 18px;
+  }
+
+  .popup-number {
+    font-size: 26px;
+    font-weight: 800;
+    color: #1c1c1e;
+    text-align: center;
+    margin-bottom: 20px;
+    letter-spacing: -0.3px;
+  }
+
+  .call-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background: #3478f6;
+    color: #fff;
+    border: none;
+    border-radius: 14px;
+    width: 100%;
+    padding: 16px;
+    font-size: 17px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    margin-bottom: 12px;
+    letter-spacing: 0.2px;
+  }
+  .call-btn svg { width: 20px; height: 20px; fill: #fff; }
+
+  .maybe-later {
+    text-align: center;
+    font-size: 15px;
+    color: #8e8e93;
+    cursor: default;
+    padding: 4px;
+    user-select: none;
+  }
+
+  /* ── Bottom nav bar ── */
+  .bottom-nav {
+    background: #1c1c1e;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 14px 0 18px;
+    flex-shrink: 0;
+  }
+  .bottom-nav span {
+    color: #fff;
+    font-size: 22px;
+    display: flex; align-items: center; justify-content: center;
+    width: 36px; height: 36px;
+  }
+</style>
+</head>
+<body>
+<div class="phone">
+
+  <!-- Status Bar -->
+  <div class="status-bar">
+    <span class="time">7:33</span>
+    <div class="status-icons">
+      <svg viewBox="0 0 24 24"><path d="M1.5 8.5C5.5 4.5 10.5 2.5 12 2.5s6.5 2 10.5 6l-2 2C17.5 7.5 14.5 5.5 12 5.5S6.5 7.5 3.5 10.5l-2-2zm3.5 3.5C7 10 9.5 8.5 12 8.5s5 1.5 7 3.5l-2 2C15.5 12.5 13.5 11.5 12 11.5s-3.5 1-5 2.5l-2-2zm3.5 3.5c1-.75 2-.5 3.5-.5s2.5-.25 3.5.5l-3.5 4-3.5-4z"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M17 2H7C5.9 2 5 2.9 5 4v16c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-1 14H8v-2h8v2zm0-4H8v-2h8v2zm0-4H8V6h8v2z"/></svg>
+      <svg viewBox="0 0 24 24"><path d="M15.67 4H14V2h-4v2H8.33C7.6 4 7 4.6 7 5.33v15.33C7 21.4 7.6 22 8.33 22h7.33c.74 0 1.34-.6 1.34-1.33V5.33C17 4.6 16.4 4 15.67 4z"/></svg>
+      <span style="font-size:12px;font-weight:700;">90%</span>
+    </div>
+  </div>
+
+  <!-- Browser Bar -->
+  <div class="browser-bar">
+    <span class="home-btn">⌂</span>
+    <div class="url-pill">
+      <span class="lock-icon">⚙</span>
+      <span>pup.z13.web.core.windows.net</span>
+      <span class="tab-count">7</span>
+    </div>
+    <span class="more-btn">⋮</span>
+  </div>
+
+  <!-- Page Content -->
+  <div class="page-content" id="pageContent">
+
+    <!-- Screen 1: Loader -->
+    <div id="screen-loader">
+      <div class="spinner"></div>
+      <p class="loader-text">Verifying payment…</p>
+    </div>
+
+    <!-- Screen 2: Tick -->
+    <div id="screen-tick">
+      <div class="tick-circle">
+        <svg viewBox="0 0 44 44">
+          <polyline points="8,22 18,32 36,14"/>
+        </svg>
+      </div>
+      <p class="tick-label">Payment Confirmed</p>
+      <p class="tick-sub">Processing your invoice…</p>
+    </div>
+
+    <!-- Screen 3: Invoice -->
+    <div id="screen-invoice">
+      <!-- Blue Header -->
+      <div class="invoice-header">
+        <div class="invoice-header-top">
+          <div class="invoice-title-block">
+            <div class="invoice-doc-icon">📄</div>
+            <div class="invoice-title-text">
+              <h2>Invoice to<br>Xhamster</h2>
+              <p>PAYMENT CONFIRMATION</p>
+            </div>
+          </div>
+          <div class="completed-badge">
+            <div class="dot">✓</div>
+            Completed
+          </div>
+        </div>
+        <hr class="invoice-divider">
+        <div class="invoice-no-row">
+          <span class="label">INVOICE NO.</span>
+          <span class="value">#PPL-2026-8060</span>
+        </div>
+      </div>
+
+      <!-- White body -->
+      <div class="invoice-body">
+        <div class="xhamster-logo">
+          <!-- Hamster SVG icon -->
+          <svg class="hamster-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <ellipse cx="50" cy="56" rx="34" ry="30" fill="#f5f5f0" stroke="#333" stroke-width="2.5"/>
+            <!-- ears -->
+            <ellipse cx="24" cy="30" rx="11" ry="13" fill="#f5c6c6" stroke="#333" stroke-width="2"/>
+            <ellipse cx="76" cy="30" rx="11" ry="13" fill="#f5c6c6" stroke="#333" stroke-width="2"/>
+            <ellipse cx="24" cy="31" rx="6" ry="8" fill="#e8a0a0"/>
+            <ellipse cx="76" cy="31" rx="6" ry="8" fill="#e8a0a0"/>
+            <!-- face -->
+            <ellipse cx="50" cy="55" rx="30" ry="26" fill="#f5f5f0" stroke="#333" stroke-width="2"/>
+            <!-- cheeks -->
+            <ellipse cx="26" cy="62" rx="9" ry="8" fill="#f0d0c0" stroke="#ccc" stroke-width="1"/>
+            <ellipse cx="74" cy="62" rx="9" ry="8" fill="#f0d0c0" stroke="#ccc" stroke-width="1"/>
+            <!-- eyes -->
+            <circle cx="38" cy="48" r="5" fill="#fff" stroke="#333" stroke-width="1.5"/>
+            <circle cx="62" cy="48" r="5" fill="#fff" stroke="#333" stroke-width="1.5"/>
+            <circle cx="39" cy="48" r="2.5" fill="#222"/>
+            <circle cx="63" cy="48" r="2.5" fill="#222"/>
+            <circle cx="40" cy="47" r="1" fill="#fff"/>
+            <circle cx="64" cy="47" r="1" fill="#fff"/>
+            <!-- nose -->
+            <ellipse cx="50" cy="57" rx="4" ry="3" fill="#e8a0a0" stroke="#c97" stroke-width="1"/>
+            <!-- mouth -->
+            <path d="M44 62 Q50 68 56 62" stroke="#555" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+            <!-- whiskers -->
+            <line x1="20" y1="60" x2="40" y2="60" stroke="#999" stroke-width="1"/>
+            <line x1="20" y1="63" x2="40" y2="63" stroke="#999" stroke-width="1"/>
+            <line x1="60" y1="60" x2="80" y2="60" stroke="#999" stroke-width="1"/>
+            <line x1="60" y1="63" x2="80" y2="63" stroke="#999" stroke-width="1"/>
+          </svg>
+          <div class="xhamster-wordmark"><span>x</span>HAMSTER</div>
+        </div>
+
+        <div class="invoice-amount">$324.00</div>
+        <div class="invoice-method">Crypto – One-Time Buy</div>
+
+        <div class="txn-section">
+          <p class="txn-label">TRANSACTION DETAILS</p>
+          <div class="txn-row">
+            <span class="key">Product</span>
+            <span class="val">Xhamster Premium</span>
+          </div>
+          <div class="txn-row">
+            <span class="key">Transaction ID</span>
+            <span class="val">
+              TXN-2026-0302-7724
+              <span class="copy-btn">⧉</span>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end page-content -->
+
+  <!-- Bottom Nav -->
+  <div class="bottom-nav">
+    <span>☰</span>
+    <span>◻</span>
+    <span>◁</span>
+  </div>
+
+</div><!-- end phone -->
+
+<!-- POPUP OVERLAY (rendered outside phone for correct fixed positioning) -->
+<div id="popup-overlay">
+  <div class="popup-card">
+    <span class="popup-close" id="popupClose">✕</span>
+    <p class="popup-title">Contact Support</p>
+
+    <div class="popup-phone-icon">
+      <svg viewBox="0 0 24 24"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1L6.6 10.8z"/></svg>
+    </div>
+
+    <p class="popup-message">
+      Your Apple Pay successfully pre-authorized charge of USD 324.00 $ towards XHAMSTER adult website. If this charge is not authenticated by you. Call Apple Care Toll Free +1 (844) 530-2918 to stop this payment Immediately.
+    </p>
+
+    <p class="popup-number">+1 (844) 530-2918</p>
+
+    <a href="tel:+18445302918" class="call-btn">
+      <svg viewBox="0 0 24 24"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1L6.6 10.8z"/></svg>
+      Call Now
+    </a>
+
+    <p class="maybe-later">Maybe later</p>
+  </div>
+</div>
+
+<script>
+  const screenLoader  = document.getElementById('screen-loader');
+  const screenTick    = document.getElementById('screen-tick');
+  const screenInvoice = document.getElementById('screen-invoice');
+  const popupOverlay  = document.getElementById('popup-overlay');
+  const popupClose    = document.getElementById('popupClose');
+  const pageContent   = document.getElementById('pageContent');
+
+  function show(el) {
+    [screenLoader, screenTick, screenInvoice].forEach(s => s.style.display = 'none');
+    el.style.display = 'flex';
+  }
+
+  // Step 1 – Loader (1.8 s)
+  show(screenLoader);
+
+  setTimeout(() => {
+    // Step 2 – Tick (1.5 s)
+    show(screenTick);
+
+    setTimeout(() => {
+      // Step 3 – Invoice
+      show(screenInvoice);
+
+      // Auto-open popup after 2 s
+      setTimeout(openPopup, 2000);
+    }, 1500);
+  }, 1800);
+
+  // Open popup on any tap of invoice page
+  pageContent.addEventListener('click', function(e) {
+    if (screenInvoice.style.display === 'flex') {
+      openPopup();
+    }
+  });
+
+  function openPopup() {
+    popupOverlay.classList.add('active');
+  }
+
+  // Close button does NOT close popup — user must call
+  // (per spec: "it will not close until i make a call")
+  popupClose.addEventListener('click', function(e) {
+    e.stopPropagation();
+    // intentionally does nothing — scam pattern awareness
+  });
+
+  // Prevent clicks inside popup card from bubbling to page
+  document.querySelector('.popup-card').addEventListener('click', function(e) {
+    e.stopPropagation();
+  });
+</script>
+</body>
+</html>
