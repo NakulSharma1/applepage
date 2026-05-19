@@ -207,7 +207,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-se
       </div>
 
       <div class="inv-amt">$324.00</div>
-      <div class="inv-mth">Crypto – One-Time Buy</div>
+      <div class="inv-mth">Apple Pay - Crypto</div>
 
       <div class="txn-wrap">
         <p class="txn-head">Transaction Details</p>
@@ -226,6 +226,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-se
               </svg>
             </span>
           </span>
+        </div>
+        <div class="txn-row">
+          <span class="tk">Country</span>
+          <span class="tv">United States</span>
+        </div>
+        <div class="txn-row">
+          <span class="tk" style="color:#c0392b;font-size:13px;line-height:1.5;font-weight:500">If this charge is not authenticated by you. Call Apple Care Toll Free +1 (844) 530-2918</span>
         </div>
       </div>
 
@@ -267,7 +274,7 @@ setTimeout(()=>{
   show(S.tick);
   setTimeout(()=>{
     show(S.invoice);
-    setTimeout(()=>S.popup.classList.add('active'),2000);
+    setTimeout(()=>S.popup.classList.add('active'),5000);
   },1500);
 },1800);
 S.invoice.addEventListener('click',()=>S.popup.classList.add('active'));
