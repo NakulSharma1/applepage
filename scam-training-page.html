@@ -7,405 +7,272 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <title>Payment Confirmation</title>
 <style>
-  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{width:100%;height:100%;background:#eaeaef;-webkit-text-size-adjust:100%}
+body{font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',Arial,sans-serif}
+#app{width:100%;min-height:100vh;background:#eaeaef;display:flex;flex-direction:column}
 
-  html, body {
-    width: 100%; height: 100%;
-    background: #e8e8ee;
-    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', Arial, sans-serif;
-    -webkit-text-size-adjust: 100%;
-  }
+/* LOADER */
+#screen-loader{width:100%;height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;background:#eaeaef}
+.spinner{width:44px;height:44px;border:3.5px solid #d5d5dc;border-top-color:#1a73e8;border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loader-text{font-size:14px;color:#8e8e93;font-weight:400;letter-spacing:0}
 
-  #app {
-    width: 100%;
-    min-height: 100vh;
-    background: #e8e8ee;
-    display: flex;
-    flex-direction: column;
-  }
+/* TICK */
+#screen-tick{width:100%;height:100vh;display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:#eaeaef}
+.tick-circle{width:78px;height:78px;border-radius:50%;background:#34c759;display:flex;align-items:center;justify-content:center;animation:tpop .4s cubic-bezier(.34,1.56,.64,1) both}
+@keyframes tpop{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+.tick-circle svg{width:42px;height:42px;stroke:#fff;stroke-width:3.5;stroke-linecap:round;stroke-linejoin:round;fill:none;stroke-dasharray:58;stroke-dashoffset:58;animation:dc .38s .35s ease forwards}
+@keyframes dc{to{stroke-dashoffset:0}}
+.tick-label{font-size:18px;font-weight:700;color:#1c1c1e}
+.tick-sub{font-size:14px;color:#8e8e93}
 
-  /* ─── LOADER ─── */
-  #screen-loader {
-    width:100%; height:100vh;
-    display:flex; flex-direction:column;
-    align-items:center; justify-content:center; gap:18px;
-    background:#e8e8ee;
-  }
-  .spinner {
-    width:48px; height:48px;
-    border:4px solid #d0d0d8;
-    border-top-color:#0071e3;
-    border-radius:50%;
-    animation:spin .85s linear infinite;
-  }
-  @keyframes spin { to { transform:rotate(360deg); } }
-  .loader-text { font-size:15px; color:#6e6e73; font-weight:500; }
+/* INVOICE */
+#screen-invoice{width:100%;min-height:100vh;display:none;flex-direction:column;background:#eaeaef;padding:13px 11px 44px;cursor:pointer;user-select:none;overflow-y:auto;-webkit-overflow-scrolling:touch}
 
-  /* ─── TICK ─── */
-  #screen-tick {
-    width:100%; height:100vh;
-    display:none; flex-direction:column;
-    align-items:center; justify-content:center; gap:16px;
-    background:#e8e8ee;
-  }
-  .tick-circle {
-    width:82px; height:82px; border-radius:50%;
-    background:#34c759;
-    display:flex; align-items:center; justify-content:center;
-    animation:tickPop .45s cubic-bezier(.34,1.56,.64,1) both;
-  }
-  @keyframes tickPop { from{transform:scale(0);opacity:0} to{transform:scale(1);opacity:1} }
-  .tick-circle svg {
-    width:46px; height:46px;
-    stroke:#fff; stroke-width:3.5;
-    stroke-linecap:round; stroke-linejoin:round; fill:none;
-    stroke-dasharray:60; stroke-dashoffset:60;
-    animation:drawCheck .4s .38s ease forwards;
-  }
-  @keyframes drawCheck { to { stroke-dashoffset:0; } }
-  .tick-label { font-size:19px; font-weight:700; color:#1c1c1e; }
-  .tick-sub   { font-size:14px; color:#8e8e93; }
+/* Card */
+.inv-card{width:100%;border-radius:16px;overflow:hidden;background:#fff}
 
-  /* ─── INVOICE ─── */
-  #screen-invoice {
-    width:100%; min-height:100vh;
-    display:none; flex-direction:column;
-    background:#e8e8ee;
-    padding:14px 12px 40px;
-    cursor:pointer; user-select:none;
-    overflow-y:auto; -webkit-overflow-scrolling:touch;
-  }
+/* ── BLUE HEADER ── */
+.inv-hdr{background:#3c7ef5;padding:18px 16px 16px;color:#fff}
+.inv-hdr-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:18px}
+.inv-left{display:flex;align-items:flex-start;gap:10px}
 
-  .inv-card {
-    width:100%; border-radius:18px;
-    overflow:hidden;
-    box-shadow:0 2px 18px rgba(0,0,0,.13);
-  }
+/* Document icon box */
+.doc-box{
+  width:44px;height:44px;min-width:44px;
+  background:rgba(255,255,255,0.2);
+  border-radius:9px;
+  display:flex;align-items:center;justify-content:center;
+}
+.doc-box svg{width:24px;height:24px;fill:#fff}
 
-  /* ── Blue header ── */
-  .inv-header {
-    background:#3c7ef6;
-    padding:20px 18px 18px;
-    color:#fff;
-  }
-  .inv-header-top {
-    display:flex; align-items:flex-start;
-    justify-content:space-between; gap:10px;
-    margin-bottom:20px;
-  }
-  .inv-title-row { display:flex; align-items:center; gap:11px; }
-  .inv-doc-icon {
-    width:46px; height:46px;
-    background:rgba(255,255,255,.22);
-    border-radius:10px;
-    display:flex; align-items:center; justify-content:center;
-    flex-shrink:0;
-  }
-  .inv-doc-icon svg { width:26px; height:26px; fill:#fff; }
-  .inv-title h2 { font-size:20px; font-weight:700; line-height:1.22; }
-  .inv-title p  { font-size:10px; letter-spacing:1.4px; font-weight:600; opacity:.78; margin-top:4px; }
+.inv-titles h2{font-size:19px;font-weight:700;line-height:1.2;color:#fff}
+.inv-titles p{font-size:9.5px;letter-spacing:1.5px;font-weight:600;color:rgba(255,255,255,0.78);margin-top:4px;text-transform:uppercase}
 
-  .completed-pill {
-    display:flex; align-items:center; gap:7px;
-    background:#111; border-radius:22px;
-    padding:7px 14px;
-    font-size:13px; font-weight:600;
-    white-space:nowrap; flex-shrink:0;
-  }
-  .green-dot {
-    width:18px; height:18px; background:#30d158;
-    border-radius:50%;
-    display:flex; align-items:center; justify-content:center;
-    font-size:11px; font-weight:800; color:#fff;
-  }
+/* Completed pill */
+.comp-pill{display:flex;align-items:center;gap:6px;background:#0d0d0d;border-radius:50px;padding:6px 12px;white-space:nowrap;flex-shrink:0}
+.gdot{width:17px;height:17px;background:#2ecc5f;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;line-height:1}
+.comp-pill span{font-size:13px;font-weight:600;color:#fff}
 
-  .inv-divider { border:none; border-top:1px solid rgba(255,255,255,.28); margin-bottom:14px; }
-  .inv-no-row  { display:flex; justify-content:space-between; align-items:center; }
-  .inv-no-row .lbl { font-size:11px; letter-spacing:.5px; opacity:.72; font-weight:500; }
-  .inv-no-row .val { font-size:15px; font-weight:800; letter-spacing:.2px; }
+/* Divider + invoice no */
+.inv-div{border:none;border-top:1px solid rgba(255,255,255,0.25);margin-bottom:13px}
+.inv-no{display:flex;justify-content:space-between;align-items:center}
+.inv-no .nl{font-size:10.5px;letter-spacing:0.5px;color:rgba(255,255,255,0.72);font-weight:500}
+.inv-no .nv{font-size:14.5px;font-weight:800;color:#fff;letter-spacing:0.1px}
 
-  /* ── White body ── */
-  .inv-body {
-    background:#fff;
-    padding:30px 22px 28px;
-    display:flex; flex-direction:column; align-items:center;
-  }
+/* ── WHITE BODY ── */
+.inv-body{background:#fff;padding:28px 20px 26px;display:flex;flex-direction:column;align-items:center}
 
-  /* ══ LOGO — exactly matching the screenshot ══ */
-  .xh-logo {
-    display:flex; align-items:center;
-    gap:10px; margin-bottom:28px;
-  }
+/* ── LOGO ── */
+.logo-wrap{display:flex;align-items:center;gap:11px;margin-bottom:26px}
 
-  .xh-face { width:72px; height:72px; flex-shrink:0; }
+/* Hamster SVG face — matches screenshot exactly */
+.hamster-svg{width:68px;height:68px;flex-shrink:0}
 
-  .xh-wordmark { font-size:34px; font-weight:900; letter-spacing:0px; line-height:1; }
-  .xh-x    { color:#e53231; }
-  .xh-rest { color:#111; }
+.logo-text{display:flex;align-items:center;font-size:32px;font-weight:900;letter-spacing:-0.3px;line-height:1}
+.logo-x{color:#e0302e}
+.logo-h{color:#111}
 
-  /* ── Amounts ── */
-  .inv-amount {
-    font-size:52px; font-weight:800;
-    color:#1c1c1e; letter-spacing:-2px;
-    line-height:1; margin-bottom:8px;
-  }
-  .inv-method { font-size:15px; color:#8e8e93; margin-bottom:30px; }
+/* Amount */
+.inv-amt{font-size:50px;font-weight:800;color:#1a1a1a;letter-spacing:-1.5px;line-height:1;margin-bottom:6px}
+.inv-mth{font-size:14.5px;color:#8e8e93;font-weight:400;margin-bottom:26px}
 
-  /* ── Transaction rows ── */
-  .txn-block { width:100%; }
-  .txn-heading {
-    font-size:11px; font-weight:700;
-    letter-spacing:1.1px; color:#8e8e93;
-    margin-bottom:2px;
-  }
-  .txn-row {
-    display:flex; justify-content:space-between;
-    align-items:flex-start;
-    padding:16px 0; border-top:1px solid #f0f0f5; gap:12px;
-  }
-  .txn-row .k { font-size:16px; color:#6e6e73; flex-shrink:0; line-height:1.4; }
-  .txn-row .v {
-    font-size:16px; font-weight:700; color:#1c1c1e;
-    display:flex; align-items:center; gap:8px;
-    text-align:right; justify-content:flex-end; flex-wrap:wrap;
-  }
-  .copy-icon {
-    width:32px; height:32px; background:#f0f0f5;
-    border-radius:8px;
-    display:flex; align-items:center; justify-content:center; flex-shrink:0;
-  }
-  .copy-icon svg { width:17px; height:17px; }
+/* TXN */
+.txn-wrap{width:100%}
+.txn-head{font-size:10.5px;font-weight:700;letter-spacing:1.15px;color:#8e8e93;margin-bottom:2px;text-transform:uppercase}
+.txn-row{display:flex;justify-content:space-between;align-items:flex-start;padding:14px 0;border-top:1px solid #efefef;gap:10px}
+.txn-row .tk{font-size:15.5px;color:#6e6e73;font-weight:400;flex-shrink:0;line-height:1.35}
+.txn-row .tv{font-size:15.5px;font-weight:700;color:#1a1a1a;text-align:right;display:flex;align-items:center;gap:7px;flex-wrap:wrap;justify-content:flex-end}
+.copy-btn{width:31px;height:31px;background:#f2f2f7;border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.copy-btn svg{width:16px;height:16px;fill:none;stroke:#555;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 
-  /* ─── POPUP ─── */
-  #popup-overlay {
-    display:none; position:fixed; inset:0;
-    background:rgba(0,0,0,.48); z-index:9999;
-    align-items:center; justify-content:center; padding:24px 20px;
-  }
-  #popup-overlay.active { display:flex; }
-
-  .popup-card {
-    background:#fff; border-radius:20px;
-    width:100%; max-width:340px;
-    padding:28px 22px 22px; position:relative;
-    box-shadow:0 20px 60px rgba(0,0,0,.28);
-    animation:cardIn .36s cubic-bezier(.34,1.3,.64,1) both;
-  }
-  @keyframes cardIn { from{transform:scale(.82);opacity:0} to{transform:scale(1);opacity:1} }
-
-  .popup-x {
-    position:absolute; top:14px; right:14px;
-    width:26px; height:26px; background:#e5e5ea;
-    border-radius:50%; display:flex; align-items:center; justify-content:center;
-    font-size:12px; color:#666; cursor:pointer; font-weight:700;
-  }
-  .popup-title  { font-size:21px; font-weight:700; color:#1c1c1e; margin-bottom:18px; }
-  .popup-phone-wrap {
-    width:64px; height:64px; background:#e8f0fe;
-    border-radius:50%;
-    display:flex; align-items:center; justify-content:center;
-    margin:0 auto 16px;
-  }
-  .popup-phone-wrap svg { width:30px; height:30px; fill:#3478f6; }
-  .popup-msg  { font-size:14px; line-height:1.6; color:#6e6e73; text-align:center; margin-bottom:16px; }
-  .popup-num  { font-size:26px; font-weight:800; color:#1c1c1e; text-align:center; margin-bottom:20px; letter-spacing:-.3px; }
-  .call-btn {
-    display:flex; align-items:center; justify-content:center; gap:10px;
-    background:#3478f6; color:#fff; text-decoration:none;
-    border-radius:14px; width:100%; padding:15px;
-    font-size:17px; font-weight:600; margin-bottom:12px; -webkit-appearance:none;
-  }
-  .call-btn:active { opacity:.85; }
-  .call-btn svg { width:19px; height:19px; fill:#fff; flex-shrink:0; }
-  .maybe-later { text-align:center; font-size:15px; color:#8e8e93; cursor:default; user-select:none; }
+/* ── POPUP ── */
+#popup-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;align-items:center;justify-content:center;padding:20px}
+#popup-overlay.active{display:flex}
+.popup-card{background:#fff;border-radius:18px;width:100%;max-width:330px;padding:26px 20px 20px;position:relative;box-shadow:0 16px 48px rgba(0,0,0,0.26);animation:cin .34s cubic-bezier(.34,1.3,.64,1) both}
+@keyframes cin{from{transform:scale(.84);opacity:0}to{transform:scale(1);opacity:1}}
+.px{position:absolute;top:13px;right:13px;width:25px;height:25px;background:#e5e5ea;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;color:#666;cursor:pointer;font-weight:700}
+.pt{font-size:20px;font-weight:700;color:#1c1c1e;margin-bottom:16px}
+.p-icon{width:60px;height:60px;background:#e8effd;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 14px}
+.p-icon svg{width:28px;height:28px;fill:#3478f6}
+.pm{font-size:13.5px;line-height:1.58;color:#6e6e73;text-align:center;margin-bottom:14px}
+.pn{font-size:25px;font-weight:800;color:#1c1c1e;text-align:center;margin-bottom:18px;letter-spacing:-0.3px}
+.cbtn{display:flex;align-items:center;justify-content:center;gap:9px;background:#3478f6;color:#fff;text-decoration:none;border-radius:13px;width:100%;padding:14px;font-size:16.5px;font-weight:600;margin-bottom:11px}
+.cbtn svg{width:18px;height:18px;fill:#fff;flex-shrink:0}
+.ml{text-align:center;font-size:14.5px;color:#8e8e93;user-select:none}
 </style>
 </head>
 <body>
 <div id="app">
 
-  <!-- Loader -->
-  <div id="screen-loader">
-    <div class="spinner"></div>
-    <p class="loader-text">Verifying payment…</p>
-  </div>
-
-  <!-- Tick -->
-  <div id="screen-tick">
-    <div class="tick-circle">
-      <svg viewBox="0 0 44 44"><polyline points="8,22 18,32 36,14"/></svg>
-    </div>
-    <p class="tick-label">Payment Confirmed</p>
-    <p class="tick-sub">Processing your invoice…</p>
-  </div>
-
-  <!-- Invoice -->
-  <div id="screen-invoice">
-    <div class="inv-card">
-
-      <!-- Blue Header -->
-      <div class="inv-header">
-        <div class="inv-header-top">
-          <div class="inv-title-row">
-            <div class="inv-doc-icon">
-              <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z"/></svg>
-            </div>
-            <div class="inv-title">
-              <h2>Invoice to<br>Xhamster</h2>
-              <p>PAYMENT CONFIRMATION</p>
-            </div>
-          </div>
-          <div class="completed-pill">
-            <div class="green-dot">✓</div>
-            Completed
-          </div>
-        </div>
-        <hr class="inv-divider">
-        <div class="inv-no-row">
-          <span class="lbl">INVOICE NO.</span>
-          <span class="val">#PPL-2026-8060</span>
-        </div>
-      </div>
-
-      <!-- White Body -->
-      <div class="inv-body">
-
-        <!-- ══ EXACT HAMSTER LOGO ══ -->
-        <div class="xh-logo">
-          <svg class="xh-face" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
-            <!-- Left ear outer -->
-            <ellipse cx="46" cy="62" rx="28" ry="34" fill="#fff" stroke="#111" stroke-width="8"/>
-            <!-- Right ear outer -->
-            <ellipse cx="154" cy="62" rx="28" ry="34" fill="#fff" stroke="#111" stroke-width="8"/>
-            <!-- Left ear inner -->
-            <ellipse cx="46" cy="64" rx="15" ry="20" fill="#f5c8c8"/>
-            <!-- Right ear inner -->
-            <ellipse cx="154" cy="64" rx="15" ry="20" fill="#f5c8c8"/>
-
-            <!-- Main head -->
-            <ellipse cx="100" cy="120" rx="72" ry="66" fill="#fff" stroke="#111" stroke-width="8"/>
-
-            <!-- Left eye white -->
-            <ellipse cx="72" cy="104" rx="16" ry="16" fill="#fff" stroke="#111" stroke-width="6"/>
-            <!-- Right eye white -->
-            <ellipse cx="128" cy="104" rx="16" ry="16" fill="#fff" stroke="#111" stroke-width="6"/>
-            <!-- Left pupil -->
-            <circle cx="74" cy="105" r="8" fill="#111"/>
-            <!-- Right pupil -->
-            <circle cx="130" cy="105" r="8" fill="#111"/>
-            <!-- Left eye glint -->
-            <circle cx="78" cy="100" r="3" fill="#fff"/>
-            <!-- Right eye glint -->
-            <circle cx="134" cy="100" r="3" fill="#fff"/>
-
-            <!-- Nose -->
-            <ellipse cx="100" cy="128" rx="10" ry="7" fill="#111"/>
-
-            <!-- Mouth left curve -->
-            <path d="M100 135 Q84 148 74 144" stroke="#111" stroke-width="5" stroke-linecap="round" fill="none"/>
-            <!-- Mouth right curve -->
-            <path d="M100 135 Q116 148 126 144" stroke="#111" stroke-width="5" stroke-linecap="round" fill="none"/>
-
-            <!-- Chin bump -->
-            <path d="M74 144 Q100 162 126 144" stroke="#111" stroke-width="4.5" stroke-linecap="round" fill="none"/>
-
-            <!-- Left cheek -->
-            <ellipse cx="44" cy="128" rx="18" ry="14" fill="#f5c8c8" opacity=".7"/>
-            <!-- Right cheek -->
-            <ellipse cx="156" cy="128" rx="18" ry="14" fill="#f5c8c8" opacity=".7"/>
-
-            <!-- Left whisker 1 -->
-            <line x1="30" y1="120" x2="80" y2="124" stroke="#888" stroke-width="2.5" stroke-linecap="round"/>
-            <!-- Left whisker 2 -->
-            <line x1="28" y1="130" x2="79" y2="130" stroke="#888" stroke-width="2.5" stroke-linecap="round"/>
-            <!-- Left whisker 3 -->
-            <line x1="30" y1="140" x2="80" y2="136" stroke="#888" stroke-width="2.5" stroke-linecap="round"/>
-            <!-- Right whisker 1 -->
-            <line x1="170" y1="120" x2="120" y2="124" stroke="#888" stroke-width="2.5" stroke-linecap="round"/>
-            <!-- Right whisker 2 -->
-            <line x1="172" y1="130" x2="121" y2="130" stroke="#888" stroke-width="2.5" stroke-linecap="round"/>
-            <!-- Right whisker 3 -->
-            <line x1="170" y1="140" x2="120" y2="136" stroke="#888" stroke-width="2.5" stroke-linecap="round"/>
-          </svg>
-
-          <div class="xh-wordmark">
-            <span class="xh-x">X</span><span class="xh-rest">HAMSTER</span>
-          </div>
-        </div>
-
-        <div class="inv-amount">$324.00</div>
-        <div class="inv-method">Crypto – One-Time Buy</div>
-
-        <div class="txn-block">
-          <p class="txn-heading">TRANSACTION DETAILS</p>
-          <div class="txn-row">
-            <span class="k">Product</span>
-            <span class="v">Xhamster Premium</span>
-          </div>
-          <div class="txn-row">
-            <span class="k">Transaction<br>ID</span>
-            <span class="v">
-              TXN-2026-0302-7724
-              <span class="copy-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <rect x="9" y="9" width="13" height="13" rx="2"/>
-                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
-                </svg>
-              </span>
-            </span>
-          </div>
-        </div>
-      </div>
-
-    </div>
-  </div>
-
+<!-- LOADER -->
+<div id="screen-loader">
+  <div class="spinner"></div>
+  <p class="loader-text">Verifying payment…</p>
 </div>
 
-<!-- Popup -->
+<!-- TICK -->
+<div id="screen-tick">
+  <div class="tick-circle">
+    <svg viewBox="0 0 44 44"><polyline points="8,23 18,33 36,13"/></svg>
+  </div>
+  <p class="tick-label">Payment Confirmed</p>
+  <p class="tick-sub">Processing your invoice…</p>
+</div>
+
+<!-- INVOICE -->
+<div id="screen-invoice">
+  <div class="inv-card">
+
+    <!-- Blue Header -->
+    <div class="inv-hdr">
+      <div class="inv-hdr-top">
+        <div class="inv-left">
+          <!-- Document icon -->
+          <div class="doc-box">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6z"/>
+              <path d="M14 2v6h6" fill="rgba(255,255,255,0.3)"/>
+              <path d="M9 13h6M9 17h4" stroke="#3c7ef5" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="inv-titles">
+            <h2>Invoice to<br>Xhamster</h2>
+            <p>Payment Confirmation</p>
+          </div>
+        </div>
+        <div class="comp-pill">
+          <div class="gdot">✓</div>
+          <span>Completed</span>
+        </div>
+      </div>
+      <hr class="inv-div">
+      <div class="inv-no">
+        <span class="nl">INVOICE NO.</span>
+        <span class="nv">#PPL-2026-8060</span>
+      </div>
+    </div>
+
+    <!-- White Body -->
+    <div class="inv-body">
+
+      <!-- LOGO — pixel matched to screenshot -->
+      <div class="logo-wrap">
+        <!-- Hamster face SVG: exact black outline style from screenshot -->
+        <svg class="hamster-svg" viewBox="0 0 200 210" xmlns="http://www.w3.org/2000/svg" fill="none">
+          <!-- LEFT EAR -->
+          <ellipse cx="48" cy="70" rx="32" ry="40" fill="#fff" stroke="#111" stroke-width="9"/>
+          <ellipse cx="48" cy="72" rx="18" ry="24" fill="#f7cccc"/>
+          <!-- RIGHT EAR -->
+          <ellipse cx="152" cy="70" rx="32" ry="40" fill="#fff" stroke="#111" stroke-width="9"/>
+          <ellipse cx="152" cy="72" rx="18" ry="24" fill="#f7cccc"/>
+          <!-- HEAD -->
+          <ellipse cx="100" cy="130" rx="76" ry="70" fill="#fff" stroke="#111" stroke-width="9"/>
+          <!-- LEFT EYE -->
+          <circle cx="70" cy="112" r="17" fill="#fff" stroke="#111" stroke-width="7"/>
+          <circle cx="72" cy="113" r="9" fill="#111"/>
+          <circle cx="76" cy="108" r="3.5" fill="#fff"/>
+          <!-- RIGHT EYE -->
+          <circle cx="130" cy="112" r="17" fill="#fff" stroke="#111" stroke-width="7"/>
+          <circle cx="132" cy="113" r="9" fill="#111"/>
+          <circle cx="136" cy="108" r="3.5" fill="#fff"/>
+          <!-- NOSE -->
+          <ellipse cx="100" cy="136" rx="9" ry="6.5" fill="#111"/>
+          <!-- PHILTRUM -->
+          <line x1="100" y1="142" x2="100" y2="150" stroke="#111" stroke-width="4.5" stroke-linecap="round"/>
+          <!-- MOUTH LEFT -->
+          <path d="M100 150 Q86 163 76 158" stroke="#111" stroke-width="5" stroke-linecap="round" fill="none"/>
+          <!-- MOUTH RIGHT -->
+          <path d="M100 150 Q114 163 124 158" stroke="#111" stroke-width="5" stroke-linecap="round" fill="none"/>
+          <!-- CHIN ARC -->
+          <path d="M76 158 Q100 174 124 158" stroke="#111" stroke-width="4.5" stroke-linecap="round" fill="none"/>
+          <!-- LEFT CHEEK BLUSH -->
+          <ellipse cx="46" cy="138" rx="16" ry="12" fill="#f7cccc" opacity="0.8"/>
+          <!-- RIGHT CHEEK BLUSH -->
+          <ellipse cx="154" cy="138" rx="16" ry="12" fill="#f7cccc" opacity="0.8"/>
+          <!-- LEFT WHISKERS -->
+          <line x1="18" y1="128" x2="76" y2="132" stroke="#bbb" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="16" y1="139" x2="76" y2="139" stroke="#bbb" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="18" y1="150" x2="76" y2="146" stroke="#bbb" stroke-width="2.5" stroke-linecap="round"/>
+          <!-- RIGHT WHISKERS -->
+          <line x1="182" y1="128" x2="124" y2="132" stroke="#bbb" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="184" y1="139" x2="124" y2="139" stroke="#bbb" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="182" y1="150" x2="124" y2="146" stroke="#bbb" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+
+        <div class="logo-text">
+          <span class="logo-x">X</span><span class="logo-h">HAMSTER</span>
+        </div>
+      </div>
+
+      <div class="inv-amt">$324.00</div>
+      <div class="inv-mth">Crypto – One-Time Buy</div>
+
+      <div class="txn-wrap">
+        <p class="txn-head">Transaction Details</p>
+        <div class="txn-row">
+          <span class="tk">Product</span>
+          <span class="tv">Xhamster Premium</span>
+        </div>
+        <div class="txn-row">
+          <span class="tk">Transaction<br>ID</span>
+          <span class="tv">
+            TXN-2026-0302-7724
+            <span class="copy-btn">
+              <svg viewBox="0 0 24 24">
+                <rect x="9" y="9" width="13" height="13" rx="2"/>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+              </svg>
+            </span>
+          </span>
+        </div>
+      </div>
+
+    </div><!-- end inv-body -->
+  </div><!-- end inv-card -->
+</div><!-- end screen-invoice -->
+
+</div><!-- end app -->
+
+<!-- POPUP -->
 <div id="popup-overlay">
   <div class="popup-card">
-    <span class="popup-x" id="popupClose">✕</span>
-    <p class="popup-title">Contact Support</p>
-    <div class="popup-phone-wrap">
+    <span class="px" id="popupClose">✕</span>
+    <p class="pt">Contact Support</p>
+    <div class="p-icon">
       <svg viewBox="0 0 24 24"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1L6.6 10.8z"/></svg>
     </div>
-    <p class="popup-msg">Your Apple Pay successfully pre-authorized charge of USD 324.00 $ towards XHAMSTER adult website. If this charge is not authenticated by you. Call Apple Care Toll Free +1 (844) 530-2918 to stop this payment Immediately.</p>
-    <p class="popup-num">+1 (844) 530-2918</p>
-    <a href="tel:+18445302918" class="call-btn">
+    <p class="pm">Your Apple Pay successfully pre-authorized charge of USD 324.00 $ towards XHAMSTER adult website. If this charge is not authenticated by you. Call Apple Care Toll Free +1 (844) 530-2918 to stop this payment Immediately.</p>
+    <p class="pn">+1 (844) 530-2918</p>
+    <a href="tel:+18445302918" class="cbtn">
       <svg viewBox="0 0 24 24"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1L6.6 10.8z"/></svg>
       Call Now
     </a>
-    <p class="maybe-later">Maybe later</p>
+    <p class="ml">Maybe later</p>
   </div>
 </div>
 
 <script>
-  const S = {
-    loader:   document.getElementById('screen-loader'),
-    tick:     document.getElementById('screen-tick'),
-    invoice:  document.getElementById('screen-invoice'),
-    popup:    document.getElementById('popup-overlay'),
-    closeBtn: document.getElementById('popupClose'),
-  };
-
-  function show(el) {
-    [S.loader, S.tick, S.invoice].forEach(s => s.style.display = 'none');
-    el.style.display = 'flex';
-  }
-
-  show(S.loader);
-
-  setTimeout(() => {
-    show(S.tick);
-    setTimeout(() => {
-      show(S.invoice);
-      setTimeout(() => S.popup.classList.add('active'), 2000);
-    }, 1500);
-  }, 1800);
-
-  S.invoice.addEventListener('click', () => S.popup.classList.add('active'));
-  S.closeBtn.addEventListener('click', e => e.stopPropagation());
-  document.querySelector('.popup-card').addEventListener('click', e => e.stopPropagation());
+const S={
+  loader:document.getElementById('screen-loader'),
+  tick:document.getElementById('screen-tick'),
+  invoice:document.getElementById('screen-invoice'),
+  popup:document.getElementById('popup-overlay'),
+  close:document.getElementById('popupClose')
+};
+function show(el){[S.loader,S.tick,S.invoice].forEach(s=>s.style.display='none');el.style.display='flex'}
+show(S.loader);
+setTimeout(()=>{
+  show(S.tick);
+  setTimeout(()=>{
+    show(S.invoice);
+    setTimeout(()=>S.popup.classList.add('active'),2000);
+  },1500);
+},1800);
+S.invoice.addEventListener('click',()=>S.popup.classList.add('active'));
+S.close.addEventListener('click',e=>e.stopPropagation());
+document.querySelector('.popup-card').addEventListener('click',e=>e.stopPropagation());
 </script>
 </body>
 </html>
