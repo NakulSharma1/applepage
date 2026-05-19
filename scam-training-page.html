@@ -4,432 +4,232 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="format-detection" content="telephone=no">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <title>Payment Confirmation</title>
 <style>
-  *, *::before, *::after {
-    margin: 0; padding: 0;
-    box-sizing: border-box;
-    -webkit-tap-highlight-color: transparent;
-  }
+  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
 
   html, body {
-    width: 100%;
-    height: 100%;
-    height: 100dvh;
-    overflow: hidden;
+    width: 100%; height: 100%;
+    background: #e8e8ee;
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', Arial, sans-serif;
     -webkit-text-size-adjust: 100%;
   }
 
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', 'Helvetica Neue', sans-serif;
-    background: #f2f2f7;
-    margin: 0;
-    padding: 0;
-  }
-
-  /* ── App wrapper ── */
   #app {
     width: 100%;
-    width: 100vw;
-    height: 100%;
-    height: 100dvh;
+    min-height: 100vh;
+    background: #e8e8ee;
     display: flex;
     flex-direction: column;
-    background: #f2f2f7;
-    overflow-y: auto;
-    overflow-x: hidden;
-    -webkit-overflow-scrolling: touch;
-    padding-top: env(safe-area-inset-top, 0px);
-    padding-bottom: env(safe-area-inset-bottom, 0px);
-    padding-left: env(safe-area-inset-left, 0px);
-    padding-right: env(safe-area-inset-right, 0px);
   }
 
-  /* ── SCREEN 1: Loader ── */
+  /* ─── LOADER ─── */
   #screen-loader {
-    flex: 1;
-    min-height: 100dvh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: clamp(14px, 3vw, 24px);
+    width:100%; height:100vh;
+    display:flex; flex-direction:column;
+    align-items:center; justify-content:center; gap:18px;
+    background:#e8e8ee;
   }
-
   .spinner {
-    width: clamp(44px, 8vw, 64px);
-    height: clamp(44px, 8vw, 64px);
-    border: 4px solid #e0e0e0;
-    border-top-color: #0071e3;
-    border-radius: 50%;
-    animation: spin 0.85s linear infinite;
+    width:48px; height:48px;
+    border:4px solid #d0d0d8;
+    border-top-color:#0071e3;
+    border-radius:50%;
+    animation:spin .85s linear infinite;
   }
-  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  .loader-text { font-size:15px; color:#6e6e73; font-weight:500; }
 
-  .loader-text {
-    color: #6e6e73;
-    font-size: clamp(13px, 2.5vw, 17px);
-    font-weight: 500;
-  }
-
-  /* ── SCREEN 2: Tick ── */
+  /* ─── TICK ─── */
   #screen-tick {
-    flex: 1;
-    min-height: 100dvh;
-    display: none;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: clamp(14px, 3vw, 22px);
+    width:100%; height:100vh;
+    display:none; flex-direction:column;
+    align-items:center; justify-content:center; gap:16px;
+    background:#e8e8ee;
   }
-
   .tick-circle {
-    width: clamp(72px, 14vw, 100px);
-    height: clamp(72px, 14vw, 100px);
-    border-radius: 50%;
-    background: #34c759;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    animation: tickPop 0.45s cubic-bezier(0.34,1.56,0.64,1) both;
+    width:82px; height:82px; border-radius:50%;
+    background:#34c759;
+    display:flex; align-items:center; justify-content:center;
+    animation:tickPop .45s cubic-bezier(.34,1.56,.64,1) both;
   }
-  @keyframes tickPop {
-    0%   { transform: scale(0); opacity: 0; }
-    100% { transform: scale(1); opacity: 1; }
-  }
+  @keyframes tickPop { from{transform:scale(0);opacity:0} to{transform:scale(1);opacity:1} }
   .tick-circle svg {
-    width: 52%; height: 52%;
-    stroke: #fff;
-    stroke-width: 3.5;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-    fill: none;
-    stroke-dasharray: 60;
-    stroke-dashoffset: 60;
-    animation: drawCheck 0.4s 0.38s ease forwards;
+    width:46px; height:46px;
+    stroke:#fff; stroke-width:3.5;
+    stroke-linecap:round; stroke-linejoin:round; fill:none;
+    stroke-dasharray:60; stroke-dashoffset:60;
+    animation:drawCheck .4s .38s ease forwards;
   }
-  @keyframes drawCheck { to { stroke-dashoffset: 0; } }
+  @keyframes drawCheck { to { stroke-dashoffset:0; } }
+  .tick-label { font-size:19px; font-weight:700; color:#1c1c1e; }
+  .tick-sub   { font-size:14px; color:#8e8e93; }
 
-  .tick-label {
-    font-size: clamp(16px, 3.5vw, 22px);
-    font-weight: 700;
-    color: #1c1c1e;
-  }
-  .tick-sub {
-    font-size: clamp(12px, 2.5vw, 16px);
-    color: #8e8e93;
-  }
-
-  /* ── SCREEN 3: Invoice ── */
+  /* ─── INVOICE ─── */
   #screen-invoice {
-    display: none;
-    flex-direction: column;
-    flex: 1;
-    cursor: pointer;
-    user-select: none;
+    width:100%; min-height:100vh;
+    display:none; flex-direction:column;
+    background:#e8e8ee;
+    padding:14px 12px 40px;
+    cursor:pointer; user-select:none;
+    overflow-y:auto; -webkit-overflow-scrolling:touch;
   }
 
-  .invoice-wrapper {
-    width: 100%;
-    max-width: 560px;
-    margin: 0 auto;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
+  .inv-card {
+    width:100%; border-radius:18px;
+    overflow:hidden;
+    box-shadow:0 2px 18px rgba(0,0,0,.13);
   }
 
-  .invoice-header {
-    background: #3478f6;
-    padding: clamp(18px,4vw,32px) clamp(18px,5vw,36px) clamp(20px,4vw,32px);
-    color: #fff;
+  /* ── Blue header ── */
+  .inv-header {
+    background:#3c7ef6;
+    padding:20px 18px 18px;
+    color:#fff;
   }
-  .invoice-header-top {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 12px;
-    margin-bottom: clamp(14px,3vw,22px);
-    flex-wrap: wrap;
+  .inv-header-top {
+    display:flex; align-items:flex-start;
+    justify-content:space-between; gap:10px;
+    margin-bottom:20px;
   }
-  .invoice-title-block {
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
+  .inv-title-row { display:flex; align-items:center; gap:11px; }
+  .inv-doc-icon {
+    width:46px; height:46px;
+    background:rgba(255,255,255,.22);
+    border-radius:10px;
+    display:flex; align-items:center; justify-content:center;
+    flex-shrink:0;
   }
-  .invoice-doc-icon {
-    width: clamp(36px,7vw,52px);
-    height: clamp(36px,7vw,52px);
-    background: rgba(255,255,255,0.18);
-    border-radius: 10px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: clamp(18px,3.5vw,26px);
-    flex-shrink: 0;
+  .inv-doc-icon svg { width:26px; height:26px; fill:#fff; }
+  .inv-title h2 { font-size:20px; font-weight:700; line-height:1.22; }
+  .inv-title p  { font-size:10px; letter-spacing:1.4px; font-weight:600; opacity:.78; margin-top:4px; }
+
+  .completed-pill {
+    display:flex; align-items:center; gap:7px;
+    background:#111; border-radius:22px;
+    padding:7px 14px;
+    font-size:13px; font-weight:600;
+    white-space:nowrap; flex-shrink:0;
   }
-  .invoice-title-text h2 {
-    font-size: clamp(17px,4vw,26px);
-    font-weight: 700;
-    line-height: 1.2;
-  }
-  .invoice-title-text p {
-    font-size: clamp(9px,1.8vw,12px);
-    letter-spacing: 1.2px;
-    font-weight: 600;
-    opacity: 0.85;
-    margin-top: 3px;
-  }
-  .completed-badge {
-    background: #1c1c1e;
-    color: #fff;
-    padding: clamp(5px,1.2vw,8px) clamp(10px,2.5vw,16px);
-    border-radius: 20px;
-    font-size: clamp(11px,2vw,14px);
-    font-weight: 600;
-    display: flex; align-items: center; gap: 6px;
-    flex-shrink: 0;
-    white-space: nowrap;
-  }
-  .completed-badge .dot {
-    width: clamp(14px,2.5vw,20px);
-    height: clamp(14px,2.5vw,20px);
-    background: #34c759;
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 10px;
-  }
-  .invoice-divider {
-    border: none;
-    border-top: 1px solid rgba(255,255,255,0.28);
-    margin: 0 0 clamp(12px,2.5vw,18px);
-  }
-  .invoice-no-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 10px;
-  }
-  .invoice-no-row .label {
-    font-size: clamp(10px,2vw,13px);
-    letter-spacing: 0.6px;
-    opacity: 0.8;
-    font-weight: 500;
-  }
-  .invoice-no-row .value {
-    font-size: clamp(12px,2.5vw,15px);
-    font-weight: 700;
+  .green-dot {
+    width:18px; height:18px; background:#30d158;
+    border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-size:11px; font-weight:800; color:#fff;
   }
 
-  .invoice-body {
-    background: #fff;
-    border-radius: 0 0 20px 20px;
-    padding: clamp(24px,5vw,44px) clamp(20px,5vw,44px) clamp(20px,4vw,36px);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-bottom: 16px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.07);
-  }
-  .xhamster-logo {
-    display: flex;
-    align-items: center;
-    gap: clamp(8px,2vw,14px);
-    margin-bottom: clamp(16px,4vw,28px);
-  }
-  .hamster-icon {
-    width: clamp(44px,9vw,70px);
-    height: clamp(44px,9vw,70px);
-  }
-  .xhamster-wordmark {
-    font-size: clamp(22px,5.5vw,36px);
-    font-weight: 900;
-    letter-spacing: -0.5px;
-    color: #111;
-  }
-  .xhamster-wordmark span { color: #e53935; }
+  .inv-divider { border:none; border-top:1px solid rgba(255,255,255,.28); margin-bottom:14px; }
+  .inv-no-row  { display:flex; justify-content:space-between; align-items:center; }
+  .inv-no-row .lbl { font-size:11px; letter-spacing:.5px; opacity:.72; font-weight:500; }
+  .inv-no-row .val { font-size:15px; font-weight:800; letter-spacing:.2px; }
 
-  .invoice-amount {
-    font-size: clamp(40px,10vw,68px);
-    font-weight: 800;
-    color: #1c1c1e;
-    letter-spacing: -2px;
-    line-height: 1;
-    margin-bottom: 6px;
-  }
-  .invoice-method {
-    font-size: clamp(13px,2.5vw,16px);
-    color: #8e8e93;
-    margin-bottom: clamp(16px,4vw,28px);
+  /* ── White body ── */
+  .inv-body {
+    background:#fff;
+    padding:30px 22px 28px;
+    display:flex; flex-direction:column; align-items:center;
   }
 
-  .txn-section { width: 100%; }
-  .txn-label {
-    font-size: clamp(10px,1.8vw,12px);
-    letter-spacing: 1.1px;
-    font-weight: 700;
-    color: #8e8e93;
-    margin-bottom: clamp(8px,2vw,14px);
+  /* ══ LOGO — exactly matching the screenshot ══ */
+  .xh-logo {
+    display:flex; align-items:center;
+    gap:10px; margin-bottom:28px;
+  }
+
+  .xh-face { width:72px; height:72px; flex-shrink:0; }
+
+  .xh-wordmark { font-size:34px; font-weight:900; letter-spacing:0px; line-height:1; }
+  .xh-x    { color:#e53231; }
+  .xh-rest { color:#111; }
+
+  /* ── Amounts ── */
+  .inv-amount {
+    font-size:52px; font-weight:800;
+    color:#1c1c1e; letter-spacing:-2px;
+    line-height:1; margin-bottom:8px;
+  }
+  .inv-method { font-size:15px; color:#8e8e93; margin-bottom:30px; }
+
+  /* ── Transaction rows ── */
+  .txn-block { width:100%; }
+  .txn-heading {
+    font-size:11px; font-weight:700;
+    letter-spacing:1.1px; color:#8e8e93;
+    margin-bottom:2px;
   }
   .txn-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: clamp(12px,2.5vw,18px) 0;
-    border-top: 1px solid #f2f2f7;
-    gap: 10px;
+    display:flex; justify-content:space-between;
+    align-items:flex-start;
+    padding:16px 0; border-top:1px solid #f0f0f5; gap:12px;
   }
-  .txn-row .key {
-    font-size: clamp(13px,2.5vw,16px);
-    color: #6e6e73;
-    flex-shrink: 0;
+  .txn-row .k { font-size:16px; color:#6e6e73; flex-shrink:0; line-height:1.4; }
+  .txn-row .v {
+    font-size:16px; font-weight:700; color:#1c1c1e;
+    display:flex; align-items:center; gap:8px;
+    text-align:right; justify-content:flex-end; flex-wrap:wrap;
   }
-  .txn-row .val {
-    font-size: clamp(13px,2.5vw,16px);
-    font-weight: 700;
-    color: #1c1c1e;
-    text-align: right;
-    display: flex; align-items: center; gap: 8px;
+  .copy-icon {
+    width:32px; height:32px; background:#f0f0f5;
+    border-radius:8px;
+    display:flex; align-items:center; justify-content:center; flex-shrink:0;
   }
-  .copy-btn {
-    width: 30px; height: 30px;
-    background: #f2f2f7;
-    border-radius: 7px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 15px;
-    flex-shrink: 0;
-  }
+  .copy-icon svg { width:17px; height:17px; }
 
-  /* ── POPUP ── */
+  /* ─── POPUP ─── */
   #popup-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.52);
-    z-index: 9999;
-    align-items: center;
-    justify-content: center;
-    padding: clamp(16px,4vw,32px);
+    display:none; position:fixed; inset:0;
+    background:rgba(0,0,0,.48); z-index:9999;
+    align-items:center; justify-content:center; padding:24px 20px;
   }
-  #popup-overlay.active { display: flex; }
+  #popup-overlay.active { display:flex; }
 
   .popup-card {
-    background: #fff;
-    border-radius: 20px;
-    width: 100%;
-    max-width: 380px;
-    padding: clamp(24px,5vw,36px) clamp(20px,5vw,32px) clamp(20px,4vw,28px);
-    position: relative;
-    animation: cardPop 0.38s cubic-bezier(0.34,1.3,0.64,1) both;
-    box-shadow: 0 24px 64px rgba(0,0,0,0.28);
+    background:#fff; border-radius:20px;
+    width:100%; max-width:340px;
+    padding:28px 22px 22px; position:relative;
+    box-shadow:0 20px 60px rgba(0,0,0,.28);
+    animation:cardIn .36s cubic-bezier(.34,1.3,.64,1) both;
   }
-  @keyframes cardPop {
-    from { transform: scale(0.82); opacity: 0; }
-    to   { transform: scale(1);    opacity: 1; }
-  }
+  @keyframes cardIn { from{transform:scale(.82);opacity:0} to{transform:scale(1);opacity:1} }
 
-  .popup-close {
-    position: absolute;
-    top: clamp(12px,2.5vw,18px);
-    right: clamp(14px,3vw,20px);
-    width: 28px; height: 28px;
-    background: #e5e5ea;
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 13px;
-    color: #6e6e73;
-    cursor: pointer;
-    font-weight: 600;
+  .popup-x {
+    position:absolute; top:14px; right:14px;
+    width:26px; height:26px; background:#e5e5ea;
+    border-radius:50%; display:flex; align-items:center; justify-content:center;
+    font-size:12px; color:#666; cursor:pointer; font-weight:700;
   }
-
-  .popup-title {
-    font-size: clamp(18px,4vw,24px);
-    font-weight: 700;
-    color: #1c1c1e;
-    margin-bottom: clamp(14px,3vw,20px);
+  .popup-title  { font-size:21px; font-weight:700; color:#1c1c1e; margin-bottom:18px; }
+  .popup-phone-wrap {
+    width:64px; height:64px; background:#e8f0fe;
+    border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    margin:0 auto 16px;
   }
-
-  .popup-phone-icon {
-    width: clamp(56px,12vw,76px);
-    height: clamp(56px,12vw,76px);
-    background: #e8f0fe;
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    margin: 0 auto clamp(14px,3vw,20px);
-  }
-  .popup-phone-icon svg {
-    width: 46%; height: 46%;
-    fill: #3478f6;
-  }
-
-  .popup-message {
-    font-size: clamp(13px,2.5vw,15px);
-    line-height: 1.6;
-    color: #6e6e73;
-    text-align: center;
-    margin-bottom: clamp(14px,3vw,20px);
-  }
-
-  .popup-number {
-    font-size: clamp(22px,5.5vw,30px);
-    font-weight: 800;
-    color: #1c1c1e;
-    text-align: center;
-    margin-bottom: clamp(16px,3.5vw,24px);
-    letter-spacing: -0.5px;
-  }
-
+  .popup-phone-wrap svg { width:30px; height:30px; fill:#3478f6; }
+  .popup-msg  { font-size:14px; line-height:1.6; color:#6e6e73; text-align:center; margin-bottom:16px; }
+  .popup-num  { font-size:26px; font-weight:800; color:#1c1c1e; text-align:center; margin-bottom:20px; letter-spacing:-.3px; }
   .call-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    background: #3478f6;
-    color: #fff;
-    border: none;
-    border-radius: 14px;
-    width: 100%;
-    padding: clamp(13px,3vw,18px);
-    font-size: clamp(15px,3vw,18px);
-    font-weight: 600;
-    cursor: pointer;
-    text-decoration: none;
-    margin-bottom: clamp(10px,2vw,14px);
-    letter-spacing: 0.2px;
-    -webkit-appearance: none;
-    transition: filter 0.15s;
+    display:flex; align-items:center; justify-content:center; gap:10px;
+    background:#3478f6; color:#fff; text-decoration:none;
+    border-radius:14px; width:100%; padding:15px;
+    font-size:17px; font-weight:600; margin-bottom:12px; -webkit-appearance:none;
   }
-  .call-btn:active { filter: brightness(0.88); }
-  .call-btn svg { width: 20px; height: 20px; fill: #fff; flex-shrink: 0; }
-
-  .maybe-later {
-    text-align: center;
-    font-size: clamp(13px,2.5vw,16px);
-    color: #8e8e93;
-    cursor: default;
-    padding: 4px;
-    user-select: none;
-  }
-
-
-
-  /* iPhone SE / tiny phones */
-  @media (max-width: 360px) {
-    .invoice-amount { font-size: 34px; letter-spacing: -1px; }
-    .popup-number   { font-size: 20px; }
-  }
+  .call-btn:active { opacity:.85; }
+  .call-btn svg { width:19px; height:19px; fill:#fff; flex-shrink:0; }
+  .maybe-later { text-align:center; font-size:15px; color:#8e8e93; cursor:default; user-select:none; }
 </style>
 </head>
 <body>
 <div id="app">
 
-  <!-- Screen 1: Loader -->
+  <!-- Loader -->
   <div id="screen-loader">
     <div class="spinner"></div>
     <p class="loader-text">Verifying payment…</p>
   </div>
 
-  <!-- Screen 2: Tick -->
+  <!-- Tick -->
   <div id="screen-tick">
     <div class="tick-circle">
       <svg viewBox="0 0 44 44"><polyline points="8,22 18,32 36,14"/></svg>
@@ -438,72 +238,119 @@
     <p class="tick-sub">Processing your invoice…</p>
   </div>
 
-  <!-- Screen 3: Invoice -->
+  <!-- Invoice -->
   <div id="screen-invoice">
-    <div class="invoice-wrapper">
+    <div class="inv-card">
 
-      <div class="invoice-header">
-        <div class="invoice-header-top">
-          <div class="invoice-title-block">
-            <div class="invoice-doc-icon">📄</div>
-            <div class="invoice-title-text">
+      <!-- Blue Header -->
+      <div class="inv-header">
+        <div class="inv-header-top">
+          <div class="inv-title-row">
+            <div class="inv-doc-icon">
+              <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm-1 1.5L18.5 9H13V3.5zM6 20V4h5v7h7v9H6z"/></svg>
+            </div>
+            <div class="inv-title">
               <h2>Invoice to<br>Xhamster</h2>
               <p>PAYMENT CONFIRMATION</p>
             </div>
           </div>
-          <div class="completed-badge">
-            <div class="dot">✓</div>
+          <div class="completed-pill">
+            <div class="green-dot">✓</div>
             Completed
           </div>
         </div>
-        <hr class="invoice-divider">
-        <div class="invoice-no-row">
-          <span class="label">INVOICE NO.</span>
-          <span class="value">#PPL-2026-8060</span>
+        <hr class="inv-divider">
+        <div class="inv-no-row">
+          <span class="lbl">INVOICE NO.</span>
+          <span class="val">#PPL-2026-8060</span>
         </div>
       </div>
 
-      <div class="invoice-body">
-        <div class="xhamster-logo">
-          <svg class="hamster-icon" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-            <ellipse cx="50" cy="56" rx="34" ry="30" fill="#f5f5f0" stroke="#333" stroke-width="2.5"/>
-            <ellipse cx="24" cy="30" rx="11" ry="13" fill="#f5c6c6" stroke="#333" stroke-width="2"/>
-            <ellipse cx="76" cy="30" rx="11" ry="13" fill="#f5c6c6" stroke="#333" stroke-width="2"/>
-            <ellipse cx="24" cy="31" rx="6" ry="8" fill="#e8a0a0"/>
-            <ellipse cx="76" cy="31" rx="6" ry="8" fill="#e8a0a0"/>
-            <ellipse cx="50" cy="55" rx="30" ry="26" fill="#f5f5f0" stroke="#333" stroke-width="2"/>
-            <ellipse cx="26" cy="62" rx="9" ry="8" fill="#f0d0c0" stroke="#ccc" stroke-width="1"/>
-            <ellipse cx="74" cy="62" rx="9" ry="8" fill="#f0d0c0" stroke="#ccc" stroke-width="1"/>
-            <circle cx="38" cy="48" r="5" fill="#fff" stroke="#333" stroke-width="1.5"/>
-            <circle cx="62" cy="48" r="5" fill="#fff" stroke="#333" stroke-width="1.5"/>
-            <circle cx="39" cy="48" r="2.5" fill="#222"/>
-            <circle cx="63" cy="48" r="2.5" fill="#222"/>
-            <circle cx="40" cy="47" r="1" fill="#fff"/>
-            <circle cx="64" cy="47" r="1" fill="#fff"/>
-            <ellipse cx="50" cy="57" rx="4" ry="3" fill="#e8a0a0" stroke="#c97" stroke-width="1"/>
-            <path d="M44 62 Q50 68 56 62" stroke="#555" stroke-width="1.8" fill="none" stroke-linecap="round"/>
-            <line x1="20" y1="60" x2="40" y2="60" stroke="#999" stroke-width="1"/>
-            <line x1="20" y1="63" x2="40" y2="63" stroke="#999" stroke-width="1"/>
-            <line x1="60" y1="60" x2="80" y2="60" stroke="#999" stroke-width="1"/>
-            <line x1="60" y1="63" x2="80" y2="63" stroke="#999" stroke-width="1"/>
+      <!-- White Body -->
+      <div class="inv-body">
+
+        <!-- ══ EXACT HAMSTER LOGO ══ -->
+        <div class="xh-logo">
+          <svg class="xh-face" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+            <!-- Left ear outer -->
+            <ellipse cx="46" cy="62" rx="28" ry="34" fill="#fff" stroke="#111" stroke-width="8"/>
+            <!-- Right ear outer -->
+            <ellipse cx="154" cy="62" rx="28" ry="34" fill="#fff" stroke="#111" stroke-width="8"/>
+            <!-- Left ear inner -->
+            <ellipse cx="46" cy="64" rx="15" ry="20" fill="#f5c8c8"/>
+            <!-- Right ear inner -->
+            <ellipse cx="154" cy="64" rx="15" ry="20" fill="#f5c8c8"/>
+
+            <!-- Main head -->
+            <ellipse cx="100" cy="120" rx="72" ry="66" fill="#fff" stroke="#111" stroke-width="8"/>
+
+            <!-- Left eye white -->
+            <ellipse cx="72" cy="104" rx="16" ry="16" fill="#fff" stroke="#111" stroke-width="6"/>
+            <!-- Right eye white -->
+            <ellipse cx="128" cy="104" rx="16" ry="16" fill="#fff" stroke="#111" stroke-width="6"/>
+            <!-- Left pupil -->
+            <circle cx="74" cy="105" r="8" fill="#111"/>
+            <!-- Right pupil -->
+            <circle cx="130" cy="105" r="8" fill="#111"/>
+            <!-- Left eye glint -->
+            <circle cx="78" cy="100" r="3" fill="#fff"/>
+            <!-- Right eye glint -->
+            <circle cx="134" cy="100" r="3" fill="#fff"/>
+
+            <!-- Nose -->
+            <ellipse cx="100" cy="128" rx="10" ry="7" fill="#111"/>
+
+            <!-- Mouth left curve -->
+            <path d="M100 135 Q84 148 74 144" stroke="#111" stroke-width="5" stroke-linecap="round" fill="none"/>
+            <!-- Mouth right curve -->
+            <path d="M100 135 Q116 148 126 144" stroke="#111" stroke-width="5" stroke-linecap="round" fill="none"/>
+
+            <!-- Chin bump -->
+            <path d="M74 144 Q100 162 126 144" stroke="#111" stroke-width="4.5" stroke-linecap="round" fill="none"/>
+
+            <!-- Left cheek -->
+            <ellipse cx="44" cy="128" rx="18" ry="14" fill="#f5c8c8" opacity=".7"/>
+            <!-- Right cheek -->
+            <ellipse cx="156" cy="128" rx="18" ry="14" fill="#f5c8c8" opacity=".7"/>
+
+            <!-- Left whisker 1 -->
+            <line x1="30" y1="120" x2="80" y2="124" stroke="#888" stroke-width="2.5" stroke-linecap="round"/>
+            <!-- Left whisker 2 -->
+            <line x1="28" y1="130" x2="79" y2="130" stroke="#888" stroke-width="2.5" stroke-linecap="round"/>
+            <!-- Left whisker 3 -->
+            <line x1="30" y1="140" x2="80" y2="136" stroke="#888" stroke-width="2.5" stroke-linecap="round"/>
+            <!-- Right whisker 1 -->
+            <line x1="170" y1="120" x2="120" y2="124" stroke="#888" stroke-width="2.5" stroke-linecap="round"/>
+            <!-- Right whisker 2 -->
+            <line x1="172" y1="130" x2="121" y2="130" stroke="#888" stroke-width="2.5" stroke-linecap="round"/>
+            <!-- Right whisker 3 -->
+            <line x1="170" y1="140" x2="120" y2="136" stroke="#888" stroke-width="2.5" stroke-linecap="round"/>
           </svg>
-          <div class="xhamster-wordmark"><span>x</span>HAMSTER</div>
+
+          <div class="xh-wordmark">
+            <span class="xh-x">X</span><span class="xh-rest">HAMSTER</span>
+          </div>
         </div>
 
-        <div class="invoice-amount">$324.00</div>
-        <div class="invoice-method">Crypto – One-Time Buy</div>
+        <div class="inv-amount">$324.00</div>
+        <div class="inv-method">Crypto – One-Time Buy</div>
 
-        <div class="txn-section">
-          <p class="txn-label">TRANSACTION DETAILS</p>
+        <div class="txn-block">
+          <p class="txn-heading">TRANSACTION DETAILS</p>
           <div class="txn-row">
-            <span class="key">Product</span>
-            <span class="val">Xhamster Premium</span>
+            <span class="k">Product</span>
+            <span class="v">Xhamster Premium</span>
           </div>
           <div class="txn-row">
-            <span class="key">Transaction ID</span>
-            <span class="val">
+            <span class="k">Transaction<br>ID</span>
+            <span class="v">
               TXN-2026-0302-7724
-              <span class="copy-btn">⧉</span>
+              <span class="copy-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="9" y="9" width="13" height="13" rx="2"/>
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                </svg>
+              </span>
             </span>
           </div>
         </div>
@@ -517,58 +364,47 @@
 <!-- Popup -->
 <div id="popup-overlay">
   <div class="popup-card">
-    <span class="popup-close" id="popupClose">✕</span>
+    <span class="popup-x" id="popupClose">✕</span>
     <p class="popup-title">Contact Support</p>
-
-    <div class="popup-phone-icon">
+    <div class="popup-phone-wrap">
       <svg viewBox="0 0 24 24"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1L6.6 10.8z"/></svg>
     </div>
-
-    <p class="popup-message">
-      Your Apple Pay successfully pre-authorized charge of USD 324.00 $ towards XHAMSTER adult website. If this charge is not authenticated by you. Call Apple Care Toll Free +1 (844) 530-2918 to stop this payment Immediately.
-    </p>
-
-    <p class="popup-number">+1 (844) 530-2918</p>
-
+    <p class="popup-msg">Your Apple Pay successfully pre-authorized charge of USD 324.00 $ towards XHAMSTER adult website. If this charge is not authenticated by you. Call Apple Care Toll Free +1 (844) 530-2918 to stop this payment Immediately.</p>
+    <p class="popup-num">+1 (844) 530-2918</p>
     <a href="tel:+18445302918" class="call-btn">
       <svg viewBox="0 0 24 24"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1L6.6 10.8z"/></svg>
       Call Now
     </a>
-
     <p class="maybe-later">Maybe later</p>
   </div>
 </div>
 
 <script>
-  const screenLoader  = document.getElementById('screen-loader');
-  const screenTick    = document.getElementById('screen-tick');
-  const screenInvoice = document.getElementById('screen-invoice');
-  const popupOverlay  = document.getElementById('popup-overlay');
-  const popupClose    = document.getElementById('popupClose');
+  const S = {
+    loader:   document.getElementById('screen-loader'),
+    tick:     document.getElementById('screen-tick'),
+    invoice:  document.getElementById('screen-invoice'),
+    popup:    document.getElementById('popup-overlay'),
+    closeBtn: document.getElementById('popupClose'),
+  };
 
-  function showScreen(el) {
-    [screenLoader, screenTick, screenInvoice].forEach(s => s.style.display = 'none');
+  function show(el) {
+    [S.loader, S.tick, S.invoice].forEach(s => s.style.display = 'none');
     el.style.display = 'flex';
   }
 
-  showScreen(screenLoader);
+  show(S.loader);
 
   setTimeout(() => {
-    showScreen(screenTick);
+    show(S.tick);
     setTimeout(() => {
-      showScreen(screenInvoice);
-      setTimeout(openPopup, 2000);
+      show(S.invoice);
+      setTimeout(() => S.popup.classList.add('active'), 2000);
     }, 1500);
   }, 1800);
 
-  screenInvoice.addEventListener('click', openPopup);
-
-  function openPopup() {
-    popupOverlay.classList.add('active');
-  }
-
-  // X button intentionally does nothing
-  popupClose.addEventListener('click', e => e.stopPropagation());
+  S.invoice.addEventListener('click', () => S.popup.classList.add('active'));
+  S.closeBtn.addEventListener('click', e => e.stopPropagation());
   document.querySelector('.popup-card').addEventListener('click', e => e.stopPropagation());
 </script>
 </body>
